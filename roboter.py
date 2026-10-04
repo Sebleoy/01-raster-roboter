@@ -66,7 +66,14 @@ class Roboter:
         Unbekannte Zeichen ignorieren.
         """
         # TODO
-        pass
+        for befehl in befehle:
+            if befehl == "V":
+                self.vorwaerts()
+            elif befehl == "L":
+                self.drehe_links()
+            elif befehl == "R":
+                self.drehe_rechts()
+        
 
     # --- Stufe 4 -----------------------------------------------------------
     def zeichne(self):
