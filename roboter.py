@@ -13,6 +13,13 @@ SCHRITT = {
     "W": (-1, 0),
 }
 
+SYMBOL = {
+    "N": "^",
+    "O": ">",
+    "S": "v",
+    "W": "<",
+}
+
 
 class Roboter:
     def __init__(self, x=0, y=0, richtung="N", breite=10, hoehe=10, hindernisse=None):
@@ -27,13 +34,12 @@ class Roboter:
     # --- Stufe 1 -----------------------------------------------------------
     def drehe_rechts(self):
         """Um 90° im Uhrzeigersinn drehen: N -> O -> S -> W -> N."""
-        # TODO: Tipp: RICHTUNGEN.index(...) und der Modulo-Operator %
-        self.richtung = RICHTUNGEN[(RICHTUNGEN.index(self.richtung) + 1) % 4]
+        self.richtung = RICHTUNGEN[(RICHTUNGEN.index(self.richtung) + 1) % len(RICHTUNGEN)]
         
 
     def drehe_links(self):
         """Um 90° gegen den Uhrzeigersinn drehen: N -> W -> S -> O -> N."""
-        self.richtung = RICHTUNGEN[(RICHTUNGEN.index(self.richtung) - 1) % 4]
+        self.richtung = RICHTUNGEN[(RICHTUNGEN.index(self.richtung) - 1) % len(RICHTUNGEN)]
 
 
     # --- Stufe 2 + 5 -------------------------------------------------------
@@ -47,12 +53,13 @@ class Roboter:
         """
         dx, dy = SCHRITT[self.richtung]
 
-        pos_x =dx + self.x
+        pos_x = dx + self.x
         pos_y = dy + self.y
 
-        if pos_x >= self.breite or pos_x < 0 or pos_y >= self.hoehe or pos_y < 0:
+        if not (0 <= pos_x < self.breite and 0 <= pos_y < self.hoehe):
             return False
-
+        if (pos_x, pos_y) in self.hindernisse:
+            return False
         self.x = pos_x
         self.y = pos_y
         return True
@@ -65,7 +72,6 @@ class Roboter:
         V = vorwärts, L = links drehen, R = rechts drehen.
         Unbekannte Zeichen ignorieren.
         """
-        # TODO
         for befehl in befehle:
             if befehl == "V":
                 self.vorwaerts()
@@ -83,8 +89,23 @@ class Roboter:
         Die oberste Zeile ist y = hoehe-1, die unterste y = 0.
         Zeilen mit "\\n" verbinden, Zeichen in einer Zeile ohne Leerzeichen.
         """
-        # TODO
-        return ""
+        zeilen = []
+
+        for y in range(self.hoehe - 1, -1, -1):
+            zeile = ""
+            for x in range(self.breite):
+                if y == self.y and x == self.x:
+                    zeile = zeile + SYMBOL[self.richtung]
+                elif (x, y) in self.hindernisse:
+                    zeile = zeile + "#"
+                else:
+                    zeile = zeile + "."
+            zeilen.append(zeile)
+
+            
+
+
+        return "\n".join(zeilen)
 
     def __repr__(self):
         return f"Roboter(x={self.x}, y={self.y}, richtung={self.richtung!r})"
